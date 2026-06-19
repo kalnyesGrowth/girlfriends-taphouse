@@ -370,6 +370,18 @@
   }
   .hh-content .section-sub { margin: 0 auto 2rem; }
 
+  /* TIMELINE */
+  .timeline-wrap{position:relative;max-width:700px;margin:3rem auto 0}
+  .timeline-line{position:absolute;left:20px;top:0;width:2px;height:100%;background:rgba(200,145,90,.15)}
+  .timeline-progress{position:absolute;left:20px;top:0;width:2px;height:0;background:var(--amber);transition:height .1s linear}
+  .timeline-step{position:relative;padding:0 0 3rem 56px;opacity:.3;transform:translateY(12px);transition:opacity .5s,transform .5s}
+  .timeline-step.active{opacity:1;transform:translateY(0)}
+  .timeline-dot{position:absolute;left:13px;top:4px;width:16px;height:16px;border-radius:50%;border:2px solid rgba(200,145,90,.3);background:var(--dark);transition:border-color .3s,box-shadow .3s}
+  .timeline-step.active .timeline-dot{border-color:var(--amber);box-shadow:0 0 12px rgba(200,145,90,.3)}
+  .timeline-step h3{font-size:var(--text-xl);margin-bottom:.5rem;color:var(--white)}
+  .timeline-step p{color:var(--muted);font-size:var(--text-sm);line-height:1.7}
+  .timeline-num{font-family:var(--font-heading);font-size:var(--text-xs);color:var(--amber);letter-spacing:.1em;margin-bottom:.3rem}
+
   /* LOCATION */
   .location { background: var(--dark2); }
   .location-grid {
@@ -731,6 +743,42 @@
   </div>
 </section>
 
+<!-- YOUR EXPERIENCE TIMELINE -->
+<section class="section-pad" style="background:var(--dark2);">
+  <div class="container" style="text-align:center;">
+    <div class="section-label reveal">Your Experience</div>
+    <div class="section-title reveal">From Door to <em>Dessert</em></div>
+  </div>
+  <div class="timeline-wrap">
+    <div class="timeline-line"></div>
+    <div class="timeline-progress" id="tl-progress"></div>
+    <div class="timeline-step" data-tl>
+      <div class="timeline-dot"></div>
+      <div class="timeline-num">01</div>
+      <h3>Walk In, Grab a Seat</h3>
+      <p>No reservations needed. Our host seats you quickly whether you are here solo, with family, or a group of 20.</p>
+    </div>
+    <div class="timeline-step" data-tl>
+      <div class="timeline-dot"></div>
+      <div class="timeline-num">02</div>
+      <h3>Browse the Tap Wall</h3>
+      <p>12 rotating craft taps plus full bar. Ask your server for a recommendation or try a flight to sample several.</p>
+    </div>
+    <div class="timeline-step" data-tl>
+      <div class="timeline-dot"></div>
+      <div class="timeline-num">03</div>
+      <h3>Order Fresh, Cooked to Order</h3>
+      <p>Lump crab cakes, smash burgers, loaded nachos, seasonal specials. Everything made when you order it.</p>
+    </div>
+    <div class="timeline-step" data-tl>
+      <div class="timeline-dot"></div>
+      <div class="timeline-num">04</div>
+      <h3>Stay for the Vibe</h3>
+      <p>Live trivia, game nights, seasonal events. Girlfriend's is not just dinner. It is where Stafford hangs out.</p>
+    </div>
+  </div>
+</section>
+
 <!-- GALLERY -->
 <section class="gallery section-pad" id="gallery">
   <div class="container">
@@ -978,6 +1026,27 @@
     });
   }, { threshold: 0.15 });
   reveals.forEach(function(r){ revealObs.observe(r); });
+
+  // Timeline scroll animation
+  (function(){
+    var steps=document.querySelectorAll('[data-tl]');
+    var progress=document.getElementById('tl-progress');
+    var wrap=document.querySelector('.timeline-wrap');
+    if(!steps.length||!progress||!wrap)return;
+    function updateTimeline(){
+      var wTop=wrap.getBoundingClientRect().top;
+      var wH=wrap.offsetHeight;
+      var trigger=window.innerHeight*0.7;
+      var pct=Math.min(1,Math.max(0,(trigger-wTop)/wH));
+      progress.style.height=(pct*100)+'%';
+      steps.forEach(function(s,i){
+        var sTop=s.getBoundingClientRect().top;
+        if(sTop<trigger){s.classList.add('active')}
+      });
+    }
+    window.addEventListener('scroll',updateTimeline,{passive:true});
+    updateTimeline();
+  })();
 
   // Smooth scroll
   document.querySelectorAll('a[href^="#"]').forEach(function(a){
