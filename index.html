@@ -574,7 +574,7 @@
 <section class="hero" id="hero">
   <div class="hero-video-wrap">
     <canvas id="heroCanvas"></canvas>
-    <video id="heroVideo" src="hero.mp4" muted autoplay loop playsinline webkit-playsinline preload="auto" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"></video>
+    <video id="heroVideo" muted autoplay loop playsinline webkit-playsinline preload="auto" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"></video>
   </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
@@ -985,6 +985,7 @@
   // Canvas video renderer (matches working barbershop pattern)
   var canvas=document.getElementById('heroCanvas');
   var video=document.getElementById('heroVideo');
+  video.src=(window.innerWidth<768)?'hero-mobile.mp4':'hero.mp4';
   var ctx=canvas.getContext('2d');
   var heroPlaying=false;
   function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
