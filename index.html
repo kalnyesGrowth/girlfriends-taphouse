@@ -570,6 +570,7 @@
 <!-- HERO -->
 <section class="hero" id="hero">
   <canvas class="hero-canvas" id="heroCanvas"></canvas>
+  <video id="heroVideo" src="hero.mp4" muted autoplay loop playsinline webkit-playsinline preload="auto" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"></video>
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <div class="hero-badge">Stafford VA's Upscale Casual Taphouse</div>
@@ -978,14 +979,8 @@
 (function(){
   // Canvas video renderer (cover-style + mobile robust)
   var canvas = document.getElementById('heroCanvas');
+  var video = document.getElementById('heroVideo');
   var ctx = canvas.getContext('2d');
-  var video = document.createElement('video');
-  video.muted = true;
-  video.loop = true;
-  video.playsInline = true;
-  video.setAttribute('playsinline','');
-  video.setAttribute('webkit-playsinline','');
-  video.preload = 'auto';
   var heroPlaying = false;
 
   function resize(){
@@ -1019,11 +1014,8 @@
   function tryPlay(){var p=video.play();if(p&&p.then){p.then(function(){draw()}).catch(function(){})}}
   video.addEventListener('canplay',function(){resize();tryPlay()});
   video.addEventListener('loadeddata',function(){resize();tryPlay()});
-  document.addEventListener('touchstart',function h(){video.load();tryPlay();document.removeEventListener('touchstart',h)},{once:true,passive:true});
+  document.addEventListener('touchstart',function h(){tryPlay();document.removeEventListener('touchstart',h)},{once:true,passive:true});
   document.addEventListener('scroll',function h(){tryPlay();document.removeEventListener('scroll',h)},{once:true,passive:true});
-
-  video.src='hero.mp4';
-  video.load();
   draw();
 
   // Nav scroll
