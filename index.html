@@ -166,9 +166,12 @@
     position: relative; min-height: 100vh; display: flex; align-items: center;
     justify-content: center; text-align: center; overflow: hidden;
   }
-  .hero-canvas {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    z-index: 0;
+  .hero-video-wrap {
+    position: absolute; inset: 0; z-index: 0;
+    background: url('poster.jpg') center/cover no-repeat;
+  }
+  .hero-video-wrap canvas {
+    width: 100%; height: 100%;
   }
   .hero-overlay {
     position: absolute; inset: 0; z-index: 1;
@@ -569,8 +572,10 @@
 
 <!-- HERO -->
 <section class="hero" id="hero">
-  <canvas class="hero-canvas" id="heroCanvas"></canvas>
-  <video id="heroVideo" src="hero.mp4" muted autoplay loop playsinline webkit-playsinline preload="auto" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"></video>
+  <div class="hero-video-wrap">
+    <canvas id="heroCanvas"></canvas>
+    <video id="heroVideo" src="hero.mp4" muted autoplay loop playsinline webkit-playsinline preload="auto" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"></video>
+  </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <div class="hero-badge">Stafford VA's Upscale Casual Taphouse</div>
@@ -977,46 +982,24 @@
 
 <script>
 (function(){
-  // Canvas video renderer (cover-style + mobile robust)
-  var canvas = document.getElementById('heroCanvas');
-  var video = document.getElementById('heroVideo');
-  var ctx = canvas.getContext('2d');
-  var heroPlaying = false;
-
-  function resize(){
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-  }
-  function drawCover(source){
-    var cw=canvas.width,ch=canvas.height;
-    var sw=source.videoWidth||source.naturalWidth||source.width;
-    var sh=source.videoHeight||source.naturalHeight||source.height;
-    if(!sw||!sh) return;
-    var scale=Math.max(cw/sw,ch/sh);
-    var dw=sw*scale,dh=sh*scale;
-    ctx.drawImage(source,(cw-dw)/2,(ch-dh)/2,dw,dh);
-  }
-  function draw(){
-    if(!video.paused&&!video.ended){
-      heroPlaying=true;
-      drawCover(video);
-    }
-    requestAnimationFrame(draw);
-  }
-
+  // Canvas video renderer (matches working barbershop pattern)
+  var canvas=document.getElementById('heroCanvas');
+  var video=document.getElementById('heroVideo');
+  var ctx=canvas.getContext('2d');
+  var heroPlaying=false;
+  function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
+  resizeCanvas();
+  window.addEventListener('resize',function(){resizeCanvas();if(!heroPlaying){var p=new Image();p.src='poster.jpg';p.onload=function(){ctx.drawImage(p,0,0,canvas.width,canvas.height)}}});
   var posterImg=new Image();
   posterImg.src='poster.jpg';
-  posterImg.onload=function(){if(!heroPlaying){resize();drawCover(posterImg)}};
-
-  resize();
-  window.addEventListener('resize',function(){resize();if(!heroPlaying&&posterImg.complete){drawCover(posterImg)}});
-
-  function tryPlay(){var p=video.play();if(p&&p.then){p.then(function(){draw()}).catch(function(){})}}
-  video.addEventListener('canplay',function(){resize();tryPlay()});
-  video.addEventListener('loadeddata',function(){resize();tryPlay()});
+  posterImg.onload=function(){if(!heroPlaying)ctx.drawImage(posterImg,0,0,canvas.width,canvas.height)};
+  function drawFrame(){if(!video.paused&&!video.ended){heroPlaying=true;ctx.drawImage(video,0,0,canvas.width,canvas.height);requestAnimationFrame(drawFrame)}}
+  function tryPlay(){var p=video.play();if(p&&p.then){p.then(function(){requestAnimationFrame(drawFrame)}).catch(function(){})}}
+  video.addEventListener('canplay',tryPlay);
+  video.addEventListener('loadeddata',tryPlay);
+  video.addEventListener('play',function(){requestAnimationFrame(drawFrame)});
   document.addEventListener('touchstart',function h(){tryPlay();document.removeEventListener('touchstart',h)},{once:true,passive:true});
   document.addEventListener('scroll',function h(){tryPlay();document.removeEventListener('scroll',h)},{once:true,passive:true});
-  draw();
 
   // Nav scroll
   var nav = document.getElementById('nav');
